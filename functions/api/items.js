@@ -1,14 +1,7 @@
 // GET /api/items — public, no auth required
 // Returns all visible items from Turso
 
-import { createClient } from "@libsql/client/web";
-
-function turso(env) {
-  return createClient({
-    url: env.TURSO_URL,
-    authToken: env.TURSO_AUTH_TOKEN,
-  });
-}
+import { createTursoClient } from "../../lib/turso.js";
 
 export async function onRequestGet({ env }) {
   const headers = {
@@ -17,7 +10,7 @@ export async function onRequestGet({ env }) {
   };
 
   try {
-    const db = turso(env);
+    const db = createTursoClient(env);
 
     const { rows } = await db.execute(
       "SELECT id, sort_order, tag_th, tag_en, keywords_th, keywords_en, answer_th, answer_en FROM items WHERE visible = 1 ORDER BY sort_order ASC"

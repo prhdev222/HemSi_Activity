@@ -1,11 +1,7 @@
 // GET  /api/admin/items  — list all items (including hidden)
 // POST /api/admin/items  — create new item
 
-import { createClient } from "@libsql/client/web";
-
-function turso(env) {
-  return createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH_TOKEN });
-}
+import { createTursoClient } from "../../../lib/turso.js";
 
 async function verifyToken(request, env) {
   const auth = request.headers.get("Authorization") || "";
@@ -38,7 +34,7 @@ export async function onRequestGet({ request, env }) {
   if (!await verifyToken(request, env))
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: CORS });
 
-  const db = turso(env);
+  const db = createTursoClient(env);
   const { rows } = await db.execute(
     "SELECT id, sort_order, tag_th, tag_en, keywords_th, keywords_en, answer_th, answer_en, visible FROM items ORDER BY sort_order ASC"
   );
@@ -59,7 +55,7 @@ export async function onRequestPost({ request, env }) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: CORS });
 
   const body = await request.json();
-  const db = turso(env);
+  const db = createTursoClient(env);
 
   const { rows: maxRows } = await db.execute("SELECT COALESCE(MAX(sort_order),0) FROM items");
   const nextOrder = (maxRows[0][0] || 0) + 1;

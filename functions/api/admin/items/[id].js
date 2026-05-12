@@ -1,11 +1,7 @@
 // PUT    /api/admin/items/[id]  — update item
 // DELETE /api/admin/items/[id]  — delete item
 
-import { createClient } from "@libsql/client/web";
-
-function turso(env) {
-  return createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH_TOKEN });
-}
+import { createTursoClient } from "../../../../lib/turso.js";
 
 async function verifyToken(request, env) {
   const auth = request.headers.get("Authorization") || "";
@@ -40,7 +36,7 @@ export async function onRequestPut({ request, env, params }) {
 
   const id = params.id;
   const body = await request.json();
-  const db = turso(env);
+  const db = createTursoClient(env);
 
   await db.execute({
     sql: "UPDATE items SET tag_th=?, tag_en=?, keywords_th=?, keywords_en=?, answer_th=?, answer_en=?, visible=?, sort_order=? WHERE id=?",
@@ -55,7 +51,7 @@ export async function onRequestDelete({ request, env, params }) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: CORS });
 
   const id = params.id;
-  const db = turso(env);
+  const db = createTursoClient(env);
   await db.execute({ sql: "DELETE FROM items WHERE id=?", args: [id] });
 
   return new Response(JSON.stringify({ ok: true }), { headers: CORS });
