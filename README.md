@@ -54,10 +54,12 @@ npm run dev
 | การตั้งค่า | ค่า |
 |------------|-----|
 | **Framework preset** | None |
-| **Build command** | `npm install` |
-| **Build output directory** | `/` (root) หรือ `.` |
+| **Build command** | **`npm run build`** (รัน `npm ci` ติดตั้ง `@libsql/client` ก่อน bundle Functions) |
+| **Build output directory** | **`.`** (จุดเดียว = root ของ repo) |
 
-> Cloudflare จะ bundle `functions/` และติดตั้ง `package.json` ให้เองเมื่อมี build command เป็น `npm install`
+**สำคัญ:** ถ้าไม่ใส่ build command ระบบจะข้าม `npm install` แล้ว build Functions จะพังด้วยข้อความ `Could not resolve "@libsql/client/http"` — ต้องมีขั้นตอนติดตั้ง dependency เสมอ
+
+ทางเลือกอื่นที่ใช้ได้เหมือนกัน: build command เป็น **`npm ci`** หรือ **`npm install`** โดยตรง (ไม่ต้องผ่าน `npm run build`)
 
 4. หลัง deploy ครั้งแรก ไปที่ **Settings** → **Environment variables** ใส่ `TURSO_URL`, `TURSO_AUTH_TOKEN`, `ADMIN_PIN`, `ADMIN_SECRET` (ทั้ง Production และ Preview ตาม README เดิม)
 

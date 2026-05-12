@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "npm ci",
     "dev": "wrangler pages dev . --compatibility-date=2024-11-01",
     "deploy": "wrangler pages deploy ."
   },
