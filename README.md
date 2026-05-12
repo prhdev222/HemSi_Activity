@@ -103,6 +103,18 @@ turso db shell elective-activity "SELECT count(*) FROM items;"
 
 ---
 
+## แก้ `/api/items` ขึ้น 500 (โหลดข้อมูลไม่สำเร็จ)
+
+1. **ดูข้อความ error จริง** — ในเบราว์เซอร์ DevTools → **Network** → คลิก request `api/items` → แท็บ **Response** มักจะเป็น JSON แบบ `{"error":"..."}` (โค้ดส่ง message จาก Turso / runtime กลับมา)
+2. **เปิด `nodejs_compat` บน Workers runtime** (สำคัญมากเมื่อใช้ `@libsql/client` บน Pages Functions):
+   - ไป **Workers & Pages** → โปรเจกต์ → **Settings** → **Functions** → **Compatibility flags**
+   - เพิ่ม **`nodejs_compat`** ทั้ง **Production** และ **Preview** (ถ้าใช้ preview URL)
+   - จากนั้น **Deployments** → **Retry deployment** หรือ push commit ใหม่
+   - อ้างอิง: [Compatibility flags](https://developers.cloudflare.com/workers/configuration/compatibility-flags/)
+3. **ตรวจค่า Turso** — `TURSO_URL` เป็น `libsql://...` คู่กับ DB ที่รัน `seed.sql` แล้ว และ `TURSO_AUTH_TOKEN` ไม่มีช่องว่างเกินหลัง paste
+
+---
+
 ## การใช้งาน Admin Panel
 
 1. เปิด `/admin/`

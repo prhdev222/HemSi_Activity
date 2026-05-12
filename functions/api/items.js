@@ -1,7 +1,7 @@
 // GET /api/items — public, no auth required
 // Returns all visible items from Turso
 
-import { createClient } from "@libsql/client/http";
+import { createClient } from "@libsql/client/web";
 
 function turso(env) {
   return createClient({

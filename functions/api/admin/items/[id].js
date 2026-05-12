@@ -1,7 +1,7 @@
 // PUT    /api/admin/items/[id]  — update item
 // DELETE /api/admin/items/[id]  — delete item
 
-import { createClient } from "@libsql/client/http";
+import { createClient } from "@libsql/client/web";
 
 function turso(env) {
   return createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH_TOKEN });

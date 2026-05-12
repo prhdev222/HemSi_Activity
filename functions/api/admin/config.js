@@ -1,7 +1,7 @@
 // GET /api/admin/config  — get all config
 // PUT /api/admin/config  — update a config key
 
-import { createClient } from "@libsql/client/http";
+import { createClient } from "@libsql/client/web";
 
 function turso(env) {
   return createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH_TOKEN });

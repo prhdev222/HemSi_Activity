@@ -1,7 +1,7 @@
 // GET  /api/admin/items  — list all items (including hidden)
 // POST /api/admin/items  — create new item
 
-import { createClient } from "@libsql/client/http";
+import { createClient } from "@libsql/client/web";
 
 function turso(env) {
   return createClient({ url: env.TURSO_URL, authToken: env.TURSO_AUTH_TOKEN });
