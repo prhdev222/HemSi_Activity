@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Elective Hematology</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Sarabun', sans-serif; background: #f3f2ef; color: #1a1a1a; min-height: 100vh; }
+
+/* ── Login ── */
+.login-wrap {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem;
+}
+.login-card {
+  background: #fff; border-radius: 16px; padding: 2.5rem 2rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10); width: 100%; max-width: 360px; text-align: center;
+}
+.login-icon { font-size: 40px; margin-bottom: 1rem; }
+.login-card h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.login-card p { font-size: 13px; color: #888; margin-bottom: 1.5rem; }
+.pin-input {
+  width: 100%; padding: 14px 16px; border: 1.5px solid #e0e0e0; border-radius: 10px;
+  font-size: 22px; font-family: 'Sarabun', sans-serif; text-align: center;
+  letter-spacing: 8px; outline: none; margin-bottom: 1rem;
+  transition: border-color 0.15s;
+}
+.pin-input:focus { border-color: #1d6a45; }
+.pin-input.error { border-color: #e53e3e; animation: shake 0.3s; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); }
+}
+.btn-login {
+  width: 100%; padding: 13px; background: #1d6a45; color: #fff;
+  border: none; border-radius: 10px; font-size: 15px; font-family: 'Sarabun', sans-serif;
+  font-weight: 600; cursor: pointer; transition: background 0.15s;
+}
+.btn-login:hover { background: #155234; }
+.login-err { color: #e53e3e; font-size: 13px; margin-top: 8px; display: none; }
+
+/* ── App shell ── */
+.app { display: none; min-height: 100vh; }
+.topbar {
+  background: #fff; border-bottom: 1px solid #e5e3dc; padding: 0.85rem 1.5rem;
+  display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 20;
+}
+.topbar-icon { font-size: 22px; }
+.topbar h1 { font-size: 16px; font-weight: 600; flex: 1; }
+.topbar-badge { background: #e8f4ee; color: #1d6a45; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.btn-logout {
+  background: none; border: 1px solid #ddd; border-radius: 8px; padding: 7px 14px;
+  font-size: 13px; font-family: 'Sarabun', sans-serif; cursor: pointer; color: #666;
+  transition: all 0.15s;
+}
+.btn-logout:hover { background: #fee; border-color: #fca5a5; color: #c53030; }
+
+.main { max-width: 860px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+/* ── Tabs ── */
+.tabs { display: flex; gap: 4px; background: #e8e6e0; border-radius: 10px; padding: 4px; margin-bottom: 1.5rem; }
+.tab-btn {
+  flex: 1; padding: 9px; border: none; background: transparent; border-radius: 8px;
+  font-size: 14px; font-family: 'Sarabun', sans-serif; font-weight: 500; cursor: pointer;
+  color: #666; transition: all 0.15s;
+}
+.tab-btn.active { background: #fff; color: #1d6a45; box-shadow: 0 1px 4px rgba(0,0,0,0.10); }
+
+/* ── Section card ── */
+.section-card { background: #fff; border-radius: 14px; border: 1px solid #e5e3dc; overflow: hidden; }
+.section-header {
+  padding: 1rem 1.25rem; border-bottom: 1px solid #f0ede8;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.section-header h2 { font-size: 15px; font-weight: 600; }
+
+/* ── Buttons ── */
+.btn-add {
+  background: #1d6a45; color: #fff; border: none; border-radius: 8px;
+  padding: 9px 18px; font-size: 13px; font-family: 'Sarabun', sans-serif;
+  font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background 0.15s; white-space: nowrap;
+}
+.btn-add:hover { background: #155234; }
+.btn-sm {
+  border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px;
+  font-family: 'Sarabun', sans-serif; cursor: pointer; font-weight: 500; transition: all 0.15s;
+}
+.btn-edit { background: #e8f4ee; color: #1d6a45; }
+.btn-edit:hover { background: #c6e6d4; }
+.btn-del { background: #fef2f2; color: #c53030; }
+.btn-del:hover { background: #fecaca; }
+.btn-toggle { background: #fffbeb; color: #92400e; }
+.btn-toggle.active { background: #e8f4ee; color: #1d6a45; }
+.btn-save {
+  background: #1d6a45; color: #fff; border: none; border-radius: 8px; padding: 10px 22px;
+  font-size: 14px; font-family: 'Sarabun', sans-serif; font-weight: 600; cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-save:hover { background: #155234; }
+.btn-cancel {
+  background: #f5f5f5; color: #555; border: none; border-radius: 8px; padding: 10px 18px;
+  font-size: 14px; font-family: 'Sarabun', sans-serif; cursor: pointer; transition: background 0.15s;
+}
+.btn-cancel:hover { background: #e8e8e8; }
+
+/* ── Item list ── */
+.item-list { display: flex; flex-direction: column; }
+.item-row {
+  display: flex; align-items: center; gap: 10px; padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #f5f3f0; transition: background 0.1s;
+}
+.item-row:last-child { border-bottom: none; }
+.item-row:hover { background: #fafaf8; }
+.item-order { width: 28px; text-align: center; font-size: 12px; color: #bbb; font-weight: 600; flex-shrink: 0; }
+.item-tags { flex: 1; min-width: 0; }
+.item-tag-th { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.item-tag-en { font-size: 12px; color: #888; margin-top: 1px; }
+.item-visible { flex-shrink: 0; }
+.badge-visible { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+.badge-on { background: #e8f4ee; color: #1d6a45; }
+.badge-off { background: #f5f5f5; color: #999; }
+.item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ── Modal ── */
+.modal-bg {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  z-index: 100; align-items: flex-start; justify-content: center;
+  padding: 2rem 1rem; overflow-y: auto;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: #fff; border-radius: 16px; width: 100%; max-width: 680px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18); margin: auto;
+}
+.modal-header {
+  padding: 1.25rem 1.5rem; border-bottom: 1px solid #f0ede8;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-size: 16px; font-weight: 600; }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #aaa; padding: 0 4px; }
+.modal-close:hover { color: #555; }
+.modal-body { padding: 1.25rem 1.5rem; display: flex; flex-direction: column; gap: 14px; }
+.modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #f0ede8; display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── Form fields ── */
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-group label { font-size: 13px; font-weight: 600; color: #555; }
+.field-group .field-hint { font-size: 11px; color: #aaa; }
+input[type=text], textarea {
+  width: 100%; padding: 10px 12px; border: 1.5px solid #e0e0e0; border-radius: 8px;
+  font-size: 14px; font-family: 'Sarabun', sans-serif; outline: none; color: #1a1a1a;
+  transition: border-color 0.15s; resize: vertical;
+}
+input[type=text]:focus, textarea:focus { border-color: #1d6a45; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 500px) { .grid2 { grid-template-columns: 1fr; } }
+
+/* ── Toggle switch ── */
+.toggle-row { display: flex; align-items: center; gap: 10px; }
+.toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; inset: 0; background: #ddd; border-radius: 11px; cursor: pointer; transition: background 0.2s;
+}
+.toggle-slider:before {
+  content: ''; position: absolute; height: 16px; width: 16px;
+  left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle input:checked + .toggle-slider { background: #1d6a45; }
+.toggle input:checked + .toggle-slider:before { transform: translateX(18px); }
+.toggle-label { font-size: 14px; color: #444; }
+
+/* ── Config tab ── */
+.config-section { padding: 1.25rem; display: flex; flex-direction: column; gap: 16px; }
+.config-field label { font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; display: block; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+  background: #1d6a45; color: #fff; padding: 11px 22px; border-radius: 10px;
+  font-size: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 200; white-space: nowrap;
+}
+.toast.error { background: #c53030; }
+.toast.show { opacity: 1; }
+
+/* ── Loading ── */
+.loading { text-align: center; padding: 2rem; color: #aaa; font-size: 14px; }
+.empty { text-align: center; padding: 2.5rem; color: #bbb; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-screen">
+  <div class="login-card">
+    <div class="login-icon">🔐</div>
+    <h1>Admin Panel</h1>
+    <p>กิจกรรมสาขาวิชาโลหิตวิทยา</p>
+    <input type="password" class="pin-input" id="pin-input" maxlength="8"
+      placeholder="●●●●" onkeydown="if(event.key==='Enter') doLogin()" autocomplete="current-password" />
+    <button class="btn-login" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="login-err" id="login-err">PIN ไม่ถูกต้อง</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="topbar">
+    <span class="topbar-icon">🩸</span>
+    <h1>Admin — กิจกรรม Elective Hematology</h1>
+    <span class="topbar-badge">Admin</span>
+    <button class="btn-logout" onclick="doLogout()">ออกจากระบบ</button>
+  </div>
+  <div class="main">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('items', this)">📋 รายการกิจกรรม</button>
+      <button class="tab-btn" onclick="switchTab('config', this)">⚙️ ข้อความประกาศ</button>
+    </div>
+
+    <!-- TAB: ITEMS -->
+    <div id="tab-items">
+      <div class="section-card">
+        <div class="section-header">
+          <h2>รายการกิจกรรม <span id="item-count" style="color:#aaa;font-weight:400;font-size:13px"></span></h2>
+          <button class="btn-add" onclick="openModal()">＋ เพิ่มรายการ</button>
+        </div>
+        <div class="item-list" id="item-list">
+          <div class="loading">กำลังโหลด…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: CONFIG -->
+    <div id="tab-config" style="display:none">
+      <div class="section-card">
+        <div class="section-header">
+          <h2>ข้อความประกาศ (Notice Banner)</h2>
+        </div>
+        <div class="config-section">
+          <div class="config-field field-group">
+            <label>ข้อความภาษาไทย (HTML ได้)</label>
+            <textarea id="cfg-notice-th" rows="3" placeholder="&lt;strong&gt;⚠️ ก่อนเริ่ม:&lt;/strong&gt; …"></textarea>
+          </div>
+          <div class="config-field field-group">
+            <label>ข้อความภาษาอังกฤษ (HTML ได้)</label>
+            <textarea id="cfg-notice-en" rows="3" placeholder="&lt;strong&gt;⚠️ Before starting:&lt;/strong&gt; …"></textarea>
+          </div>
+          <div style="border-top:1px solid #f0ede8;padding-top:16px">
+            <div class="config-field field-group" style="margin-bottom:12px">
+              <label>Link Google Form (TH)</label>
+              <input type="text" id="cfg-form-th" placeholder="https://docs.google.com/forms/…" />
+            </div>
+            <div class="config-field field-group">
+              <label>Link Google Form (EN)</label>
+              <input type="text" id="cfg-form-en" placeholder="https://docs.google.com/forms/…" />
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end">
+            <button class="btn-save" onclick="saveConfig()">บันทึก</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add/Edit Item -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">เพิ่มรายการใหม่</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid2">
+        <div class="field-group">
+          <label>หัวข้อ (ภาษาไทย) *</label>
+          <input type="text" id="f-tag-th" placeholder="เช่น ราวด์วอร์ด — ทีมและเวลา" />
+        </div>
+        <div class="field-group">
+          <label>หัวข้อ (English)</label>
+          <input type="text" id="f-tag-en" placeholder="e.g. Ward Round — Teams & Schedule" />
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field-group">
+          <label>Keywords (ภาษาไทย)</label>
+          <span class="field-hint">คั่นด้วยเครื่องหมาย , (คำสำหรับ search)</span>
+          <textarea id="f-kw-th" rows="2" placeholder="ราวด์,วอร์ด,เช้า,7:30,…"></textarea>
+        </div>
+        <div class="field-group">
+          <label>Keywords (English)</label>
+          <span class="field-hint">Comma-separated search keywords</span>
+          <textarea id="f-kw-en" rows="2" placeholder="ward,round,morning,7:30,…"></textarea>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field-group">
+          <label>เนื้อหา (ภาษาไทย) *</label>
+          <textarea id="f-ans-th" rows="6" placeholder="รายละเอียดกิจกรรม…"></textarea>
+        </div>
+        <div class="field-group">
+          <label>Content (English)</label>
+          <textarea id="f-ans-en" rows="6" placeholder="Activity details…"></textarea>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <label class="toggle">
+          <input type="checkbox" id="f-visible" checked />
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">แสดงบนหน้าเว็บ (visible)</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn-save" onclick="saveItem()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+let TOKEN = sessionStorage.getItem('admin_token') || '';
+let editingId = null;
+let items = [];
+
+// ── Auth ──────────────────────────────────────────
+
+async function doLogin() {
+  const pin = document.getElementById('pin-input').value.trim();
+  if (!pin) return;
+
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+
+    TOKEN = data.token;
+    sessionStorage.setItem('admin_token', TOKEN);
+    showApp();
+  } catch (err) {
+    const inp = document.getElementById('pin-input');
+    inp.classList.add('error');
+    document.getElementById('login-err').style.display = 'block';
+    setTimeout(() => inp.classList.remove('error'), 400);
+  }
+}
+
+function doLogout() {
+  TOKEN = '';
+  sessionStorage.removeItem('admin_token');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pin-input').value = '';
+  document.getElementById('login-err').style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadItems();
+  loadConfig();
+}
+
+// ── Items ─────────────────────────────────────────
+
+async function loadItems() {
+  try {
+    const res = await fetch('/api/admin/items', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    if (res.status === 401) { doLogout(); return; }
+    const data = await res.json();
+    items = data.items;
+    renderItems();
+  } catch (err) {
+    toast('โหลดข้อมูลล้มเหลว', true);
+  }
+}
+
+function renderItems() {
+  const list = document.getElementById('item-list');
+  document.getElementById('item-count').textContent = `(${items.length} รายการ)`;
+
+  if (items.length === 0) {
+    list.innerHTML = '<div class="empty">ยังไม่มีรายการ — กด "เพิ่มรายการ" เพื่อเริ่ม</div>';
+    return;
+  }
+
+  list.innerHTML = items.map((item, idx) => `
+    <div class="item-row" id="row-${item.id}">
+      <div class="item-order">${item.sort_order}</div>
+      <div class="item-tags">
+        <div class="item-tag-th">${esc(item.tag_th)}</div>
+        <div class="item-tag-en">${esc(item.tag_en)}</div>
+      </div>
+      <div class="item-visible">
+        <span class="badge-visible ${item.visible ? 'badge-on' : 'badge-off'}">
+          ${item.visible ? 'แสดง' : 'ซ่อน'}
+        </span>
+      </div>
+      <div class="item-actions">
+        <button class="btn-sm btn-toggle ${item.visible ? 'active' : ''}" onclick="toggleVisible(${item.id}, ${item.visible})">
+          ${item.visible ? '👁 ซ่อน' : '👁 แสดง'}
+        </button>
+        <button class="btn-sm btn-edit" onclick="openModal(${item.id})">✏️ แก้ไข</button>
+        <button class="btn-sm btn-del" onclick="deleteItem(${item.id}, '${esc(item.tag_th)}')">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Modal ─────────────────────────────────────────
+
+function openModal(id = null) {
+  editingId = id;
+  document.getElementById('modal-title').textContent = id ? 'แก้ไขรายการ' : 'เพิ่มรายการใหม่';
+
+  if (id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    document.getElementById('f-tag-th').value = item.tag_th;
+    document.getElementById('f-tag-en').value = item.tag_en;
+    document.getElementById('f-kw-th').value = item.keywords_th;
+    document.getElementById('f-kw-en').value = item.keywords_en;
+    document.getElementById('f-ans-th').value = item.answer_th;
+    document.getElementById('f-ans-en').value = item.answer_en;
+    document.getElementById('f-visible').checked = !!item.visible;
+  } else {
+    ['f-tag-th','f-tag-en','f-kw-th','f-kw-en','f-ans-th','f-ans-en'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('f-visible').checked = true;
+  }
+
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('f-tag-th').focus();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  editingId = null;
+}
+
+async function saveItem() {
+  const tag_th = document.getElementById('f-tag-th').value.trim();
+  const answer_th = document.getElementById('f-ans-th').value.trim();
+  if (!tag_th || !answer_th) { toast('กรุณากรอกหัวข้อและเนื้อหาภาษาไทย', true); return; }
+
+  const body = {
+    tag_th,
+    tag_en: document.getElementById('f-tag-en').value.trim(),
+    keywords_th: document.getElementById('f-kw-th').value.trim(),
+    keywords_en: document.getElementById('f-kw-en').value.trim(),
+    answer_th,
+    answer_en: document.getElementById('f-ans-en').value.trim(),
+    visible: document.getElementById('f-visible').checked ? 1 : 0,
+  };
+
+  try {
+    let url = '/api/admin/items';
+    let method = 'POST';
+    if (editingId) {
+      // include current sort_order
+      const cur = items.find(i => i.id === editingId);
+      body.sort_order = cur ? cur.sort_order : 99;
+      url = `/api/admin/items/${editingId}`;
+      method = 'PUT';
+    }
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+      body: JSON.stringify(body)
+    });
+    if (res.status === 401) { doLogout(); return; }
+    if (!res.ok) throw new Error('failed');
+
+    closeModal();
+    toast(editingId ? 'บันทึกเรียบร้อย ✓' : 'เพิ่มรายการแล้ว ✓');
+    loadItems();
+  } catch {
+    toast('เกิดข้อผิดพลาด', true);
+  }
+}
+
+async function toggleVisible(id, currentVisible) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  const body = { ...item, visible: currentVisible ? 0 : 1 };
+
+  const res = await fetch(`/api/admin/items/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+    body: JSON.stringify(body)
+  });
+  if (res.status === 401) { doLogout(); return; }
+  toast(currentVisible ? 'ซ่อนรายการแล้ว' : 'แสดงรายการแล้ว');
+  loadItems();
+}
+
+async function deleteItem(id, tagName) {
+  if (!confirm(`ลบ "${tagName}" ออกจากระบบ?\nไม่สามารถกู้คืนได้`)) return;
+
+  const res = await fetch(`/api/admin/items/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + TOKEN }
+  });
+  if (res.status === 401) { doLogout(); return; }
+  toast('ลบรายการแล้ว');
+  loadItems();
+}
+
+// ── Config ────────────────────────────────────────
+
+async function loadConfig() {
+  try {
+    const res = await fetch('/api/admin/config', {
+      headers: { 'Authorization': 'Bearer ' + TOKEN }
+    });
+    const data = await res.json();
+    const cfg = {};
+    data.config.forEach(c => cfg[c.key] = c);
+
+    if (cfg.notice) {
+      document.getElementById('cfg-notice-th').value = cfg.notice.value_th;
+      document.getElementById('cfg-notice-en').value = cfg.notice.value_en;
+    }
+    if (cfg.feedback_url_th) {
+      document.getElementById('cfg-form-th').value = cfg.feedback_url_th.value_th;
+      document.getElementById('cfg-form-en').value = cfg.feedback_url_th.value_en;
+    }
+  } catch { /* silently fail */ }
+}
+
+async function saveConfig() {
+  try {
+    await Promise.all([
+      fetch('/api/admin/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify({
+          key: 'notice',
+          value_th: document.getElementById('cfg-notice-th').value,
+          value_en: document.getElementById('cfg-notice-en').value,
+        })
+      }),
+      fetch('/api/admin/config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
+        body: JSON.stringify({
+          key: 'feedback_url_th',
+          value_th: document.getElementById('cfg-form-th').value,
+          value_en: document.getElementById('cfg-form-en').value,
+        })
+      }),
+    ]);
+    toast('บันทึกข้อความประกาศแล้ว ✓');
+  } catch {
+    toast('เกิดข้อผิดพลาด', true);
+  }
+}
+
+// ── UI helpers ────────────────────────────────────
+
+function switchTab(name, btn) {
+  document.getElementById('tab-items').style.display = name === 'items' ? 'block' : 'none';
+  document.getElementById('tab-config').style.display = name === 'config' ? 'block' : 'none';
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function esc(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimer;
+function toast(msg, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (isError ? ' error' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ── Init ──────────────────────────────────────────
+
+// Close modal on background click
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+
+// Auto-login if token exists
+if (TOKEN) {
+  showApp();
+} else {
+  document.getElementById('login-screen').style.display = 'flex';
+}
+</script>
+</body>
+</html>

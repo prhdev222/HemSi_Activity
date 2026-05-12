@@ -1,0 +1,32 @@
+# ทางเลือก: ถ้าเชื่อม GitHub จาก Cloudflare Dashboard แล้ว ไม่จำเป็นต้องใช้ workflow นี้
+# ใช้เมื่อต้องการ deploy ผ่าน GitHub Actions แทน (ตั้ง secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID)
+name: Deploy Cloudflare Pages
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy . --project-name=${{ secrets.CLOUDFLARE_PAGES_PROJECT_NAME }}

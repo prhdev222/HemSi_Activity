@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>กิจกรรม — สาขาวิชาโลหิตวิทยา</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sarabun', sans-serif; background: #f8f7f4; color: #1a1a1a; min-height: 100vh; }
+  .header {
+    background: #fff;
+    border-bottom: 1px solid #e5e3dc;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .header-icon {
+    width: 42px; height: 42px;
+    background: #e8f4ee;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .header-titles { flex: 1; min-width: 0; }
+  .header h1 { font-size: 17px; font-weight: 600; }
+  .header p { font-size: 12px; color: #888; margin-top: 1px; }
+  .lang-toggle {
+    display: flex; background: #f0f0ee;
+    border-radius: 8px; padding: 3px; gap: 2px; flex-shrink: 0;
+  }
+  .lang-btn {
+    border: none; background: transparent; border-radius: 6px;
+    padding: 5px 12px; font-size: 13px; font-weight: 600;
+    font-family: 'Sarabun', sans-serif; cursor: pointer;
+    color: #888; transition: all 0.15s; letter-spacing: 0.03em;
+  }
+  .lang-btn.active { background: #fff; color: #1d6a45; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+  .main { max-width: 700px; margin: 0 auto; padding: 1.5rem 1rem 2rem; }
+
+  .notice-banner {
+    background: #fffbeb; border: 1px solid #fde68a;
+    border-radius: 12px; padding: 0.9rem 1.1rem;
+    margin-bottom: 1rem; font-size: 13.5px;
+    color: #78350f; line-height: 1.6;
+  }
+  .notice-banner strong { color: #92400e; }
+
+  .search-box {
+    background: #fff; border: 1px solid #ddd;
+    border-radius: 12px; padding: 10px 14px;
+    display: flex; gap: 10px; align-items: center;
+    margin-bottom: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .search-box input {
+    flex: 1; border: none; outline: none;
+    font-size: 15px; font-family: 'Sarabun', sans-serif;
+    background: transparent; color: #1a1a1a;
+  }
+  .search-box input::placeholder { color: #bbb; }
+  .search-btn {
+    background: #1d6a45; color: #fff; border: none;
+    border-radius: 8px; padding: 8px 18px;
+    font-size: 14px; font-family: 'Sarabun', sans-serif;
+    cursor: pointer; white-space: nowrap;
+  }
+  .search-btn:hover { background: #155234; }
+  .clear-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 18px; color: #bbb; padding: 0 2px;
+    line-height: 1; display: none;
+  }
+  .clear-btn:hover { color: #888; }
+
+  .accordion { display: flex; flex-direction: column; gap: 8px; }
+
+  .acc-item {
+    background: #fff; border: 1px solid #e5e3dc;
+    border-radius: 12px; overflow: hidden;
+    border-left: 4px solid #1d6a45;
+    transition: box-shadow 0.15s;
+  }
+  .acc-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
+
+  .acc-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.85rem 1.1rem; cursor: pointer;
+    user-select: none; gap: 10px;
+  }
+  .acc-tag {
+    display: inline-block;
+    background: #e8f4ee; color: #1d6a45;
+    font-size: 12px; font-weight: 600;
+    border-radius: 6px; padding: 4px 11px;
+    letter-spacing: 0.02em;
+  }
+  .acc-chevron {
+    font-size: 14px; color: #aaa;
+    transition: transform 0.2s; flex-shrink: 0;
+  }
+  .acc-item.open .acc-chevron { transform: rotate(180deg); color: #1d6a45; }
+
+  .acc-body {
+    display: none;
+    padding: 0 1.1rem 1rem;
+    border-top: 1px solid #f0ede8;
+  }
+  .acc-item.open .acc-body { display: block; }
+
+  .acc-answer {
+    font-size: 14.5px; line-height: 1.85;
+    color: #2a2a2a; white-space: pre-wrap;
+    padding-top: 0.75rem;
+  }
+  mark { background: #fef3c7; color: #7c5a00; border-radius: 3px; padding: 0 2px; }
+
+  .no-result {
+    text-align: center; padding: 2.5rem 1rem;
+    color: #999; font-size: 14px;
+    border: 1px dashed #ddd; border-radius: 12px; background: #fff;
+  }
+  .no-result .icon { font-size: 32px; margin-bottom: 8px; }
+
+  /* skeleton loader */
+  .skeleton { border-radius: 12px; overflow: hidden; border: 1px solid #e5e3dc; background:#fff; }
+  .skeleton-line {
+    height: 14px; background: linear-gradient(90deg, #f0ede8 25%, #e8e5e0 50%, #f0ede8 75%);
+    background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; margin: 10px 14px;
+  }
+  .skeleton-line.short { width: 40%; }
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+  .reflection-banner {
+    margin-top: 2rem;
+    background: linear-gradient(135deg, #e8f4ee 0%, #d4eddf 100%);
+    border: 1px solid #b2d9c3; border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .reflection-banner .rb-icon { font-size: 32px; flex-shrink: 0; }
+  .reflection-banner .rb-text { flex: 1; min-width: 160px; }
+  .reflection-banner .rb-text h3 { font-size: 15px; font-weight: 600; color: #1d6a45; margin-bottom: 4px; }
+  .reflection-banner .rb-text p { font-size: 13px; color: #3a7a5a; line-height: 1.5; }
+  .reflection-banner a.rb-btn {
+    display: inline-block; background: #1d6a45; color: #fff;
+    text-decoration: none; border-radius: 10px; padding: 10px 20px;
+    font-size: 14px; font-family: 'Sarabun', sans-serif; font-weight: 500;
+    white-space: nowrap; flex-shrink: 0; transition: background 0.15s;
+  }
+  .reflection-banner a.rb-btn:hover { background: #155234; }
+
+  @media (max-width: 480px) {
+    .header h1 { font-size: 15px; }
+    .acc-answer { font-size: 14px; }
+    .reflection-banner { flex-direction: column; text-align: center; }
+    .reflection-banner a.rb-btn { width: 100%; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🩸</div>
+  <div class="header-titles">
+    <h1 id="header-title">กิจกรรมสาขาวิชาโลหิตวิทยา</h1>
+    <p id="header-sub">ข้อมูลสำหรับนักศึกษาแพทย์และแพทย์ elective</p>
+  </div>
+  <div class="lang-toggle">
+    <button class="lang-btn active" id="btn-th" onclick="setLang('th')">TH</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="notice-banner" id="notice-banner">
+    <strong>⚠️ ก่อนเริ่มดูงาน:</strong> กรุณา add เข้ากลุ่ม LINE ก่อนและแนะนำตัวกับทีม<br>
+    <strong>📋 วันแรก:</strong> Staff จะ orientate กิจกรรมทั้งหมดให้
+  </div>
+
+  <div class="search-box">
+    <input id="q" type="text" placeholder="ค้นหา เช่น ราวด์กี่โมง? conference วันไหน?" oninput="onInput()" />
+    <button class="clear-btn" id="clear-btn" onclick="clearSearch()">✕</button>
+    <button class="search-btn" id="search-btn" onclick="doSearch()">ค้นหา</button>
+  </div>
+
+  <div class="accordion" id="accordion">
+    <!-- skeleton while loading -->
+    <div class="skeleton"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+    <div class="skeleton"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+    <div class="skeleton"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+  </div>
+
+  <div class="reflection-banner" style="display:none" id="rb">
+    <div class="rb-icon">📝</div>
+    <div class="rb-text">
+      <h3 id="rb-title">ประเมินความเห็นหลังดูงาน</h3>
+      <p id="rb-desc">เมื่อเสร็จสิ้นการดูงานแล้ว ขอให้กรอกแบบประเมิน<br>เพื่อพัฒนาการดูงานให้ดียิ่งขึ้น 🙏</p>
+    </div>
+    <a class="rb-btn" id="rb-btn" href="#" target="_blank">กรอกแบบประเมิน →</a>
+  </div>
+</div>
+
+<script>
+let currentLang = 'th';
+let searchActive = false;
+let DOC = { th: [], en: [] };
+let CONFIG = {};
+
+const LANG_UI = {
+  th: {
+    headerTitle: 'กิจกรรมสาขาวิชาโลหิตวิทยา',
+    headerSub: 'ข้อมูลสำหรับนักศึกษาแพทย์และแพทย์ elective',
+    placeholder: 'ค้นหา เช่น ราวด์กี่โมง? conference วันไหน?',
+    searchBtn: 'ค้นหา',
+    noResult: '<div class="icon">😕</div>ไม่พบข้อมูลที่ตรงกัน<br>ลองพิมพ์คำอื่น เช่น "ราวด์" "OPD" "conference"',
+    rbTitle: 'ประเมินความเห็นหลังดูงาน',
+    rbDesc: 'เมื่อเสร็จสิ้นการดูงานแล้ว ขอให้กรอกแบบประเมิน<br>เพื่อพัฒนาการดูงานให้ดียิ่งขึ้น 🙏',
+    rbBtn: 'กรอกแบบประเมิน →',
+  },
+  en: {
+    headerTitle: 'Elective Activities — Division of Hematology',
+    headerSub: 'Information for medical students & elective physicians',
+    placeholder: 'Search, e.g. When is ward round? Which day is conference?',
+    searchBtn: 'Search',
+    noResult: '<div class="icon">😕</div>No results found<br>Try keywords like "ward round", "OPD", "conference"',
+    rbTitle: 'Post-Elective Feedback',
+    rbDesc: 'When you have finished your elective,<br>please fill in the reflection form 🙏',
+    rbBtn: 'Fill Feedback Form →',
+  }
+};
+
+// ── Fetch data from API ──────────────────────────────
+
+async function loadData() {
+  try {
+    const res = await fetch('/api/items');
+    const data = await res.json();
+
+    // Map API response to DOC format
+    DOC.th = data.items.map(item => ({
+      id: item.id,
+      tag: item.tag.th,
+      keywords: item.keywords.th,
+      answer: item.answer.th,
+    }));
+    DOC.en = data.items.map(item => ({
+      id: item.id,
+      tag: item.tag.en || item.tag.th,
+      keywords: item.keywords.en.length ? item.keywords.en : item.keywords.th,
+      answer: item.answer.en || item.answer.th,
+    }));
+
+    CONFIG = data.config || {};
+
+    // Apply config to UI
+    if (CONFIG.notice) {
+      document.getElementById('notice-banner').innerHTML = CONFIG.notice[currentLang] || CONFIG.notice.th;
+    }
+    if (CONFIG.feedback_url_th) {
+      document.getElementById('rb-btn').href = CONFIG.feedback_url_th[currentLang] || CONFIG.feedback_url_th.th;
+    }
+
+    renderAccordion(DOC[currentLang], '');
+  } catch (err) {
+    document.getElementById('accordion').innerHTML =
+      '<div class="no-result"><div class="icon">⚠️</div>โหลดข้อมูลไม่สำเร็จ<br>กรุณารีเฟรชหน้าใหม่</div>';
+  }
+}
+
+// ── Render ───────────────────────────────────────────
+
+function escapeHtml(str) {
+  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlight(text, query) {
+  let safe = escapeHtml(text);
+  if (!query) return safe;
+  const words = query.trim().split(/\s+/).filter(w => w.length > 1);
+  words.forEach(w => {
+    const re = new RegExp(escapeHtml(w), 'gi');
+    safe = safe.replace(re, m => `<mark>${m}</mark>`);
+  });
+  return safe;
+}
+
+function renderAccordion(docs, query) {
+  const acc = document.getElementById('accordion');
+  acc.innerHTML = '';
+
+  if (docs.length === 0) {
+    acc.innerHTML = `<div class="no-result">${LANG_UI[currentLang].noResult}</div>`;
+    return;
+  }
+
+  docs.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'acc-item';
+    div.innerHTML = `
+      <div class="acc-header" onclick="toggleItem(this.parentElement)">
+        <span class="acc-tag">${escapeHtml(item.tag)}</span>
+        <span class="acc-chevron">▾</span>
+      </div>
+      <div class="acc-body">
+        <div class="acc-answer">${highlight(item.answer, query)}</div>
+      </div>
+    `;
+    acc.appendChild(div);
+  });
+}
+
+function toggleItem(el) {
+  el.classList.toggle('open');
+  // Show reflection banner when last item opens
+  const items = document.querySelectorAll('.acc-item');
+  const lastOpen = items.length > 0 && items[items.length - 1].classList.contains('open');
+  document.getElementById('rb').style.display = lastOpen ? 'flex' : 'none';
+}
+
+// ── Search ───────────────────────────────────────────
+
+function onInput() {
+  const val = document.getElementById('q').value;
+  document.getElementById('clear-btn').style.display = val ? 'block' : 'none';
+  if (!val.trim()) clearSearch();
+}
+
+function clearSearch() {
+  document.getElementById('q').value = '';
+  document.getElementById('clear-btn').style.display = 'none';
+  searchActive = false;
+  renderAccordion(DOC[currentLang], '');
+  document.querySelectorAll('.acc-item').forEach(el => el.classList.remove('open'));
+}
+
+function doSearch() {
+  const query = document.getElementById('q').value.trim();
+  if (!query) { clearSearch(); return; }
+  searchActive = true;
+  const q = query.toLowerCase();
+  const words = q.split(/\s+/);
+  const docs = DOC[currentLang];
+
+  const scored = docs.map(item => {
+    const kwArr = Array.isArray(item.keywords) ? item.keywords : (item.keywords || '').split(',');
+    const allText = (item.tag + ' ' + kwArr.join(' ') + ' ' + item.answer).toLowerCase();
+    const score = words.reduce((s, w) =>
+      s + (allText.includes(w) ? (kwArr.some(k => k.trim().includes(w)) ? 3 : 1) : 0), 0);
+    return { ...item, score };
+  }).filter(i => i.score > 0).sort((a, b) => b.score - a.score);
+
+  renderAccordion(scored, query);
+  document.querySelectorAll('.acc-item').forEach(el => el.classList.add('open'));
+}
+
+// ── Language ─────────────────────────────────────────
+
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btn-th').classList.toggle('active', lang === 'th');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+
+  const t = LANG_UI[lang];
+  document.getElementById('header-title').textContent = t.headerTitle;
+  document.getElementById('header-sub').textContent = t.headerSub;
+  document.getElementById('q').placeholder = t.placeholder;
+  document.getElementById('search-btn').textContent = t.searchBtn;
+  document.getElementById('rb-title').textContent = t.rbTitle;
+  document.getElementById('rb-desc').innerHTML = t.rbDesc;
+  document.getElementById('rb-btn').textContent = t.rbBtn;
+
+  if (CONFIG.notice) {
+    document.getElementById('notice-banner').innerHTML = CONFIG.notice[lang] || CONFIG.notice.th;
+  }
+  if (CONFIG.feedback_url_th) {
+    document.getElementById('rb-btn').href = CONFIG.feedback_url_th[lang] || CONFIG.feedback_url_th.th;
+  }
+
+  document.getElementById('q').value = '';
+  document.getElementById('clear-btn').style.display = 'none';
+  searchActive = false;
+  renderAccordion(DOC[lang], '');
+}
+
+// ── Init ─────────────────────────────────────────────
+
+document.getElementById('q').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+loadData();
+</script>
+</body>
+</html>
