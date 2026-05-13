@@ -77,6 +77,23 @@
     color: var(--text-muted); transition: all 0.15s; letter-spacing: 0.03em;
   }
   .lang-btn.active { background: var(--surface); color: var(--accent); box-shadow: 0 1px 3px var(--shadow); }
+  .menu-toggle {
+    min-width: 42px; height: 34px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text);
+    border-radius: 9px; font-family: 'Sarabun', sans-serif;
+    font-size: calc(18px + var(--font-step)); line-height: 1;
+    cursor: pointer; transition: all 0.15s; flex-shrink: 0;
+  }
+  .menu-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .settings-menu {
+    display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    overflow: hidden; max-width: 340px; opacity: 1;
+    transition: max-width 0.2s ease, opacity 0.15s ease, transform 0.15s ease;
+  }
+  .settings-menu.hidden {
+    max-width: 0; opacity: 0; transform: translateX(8px);
+    pointer-events: none;
+  }
   .display-controls {
     display: flex; align-items: center; gap: 6px; flex-shrink: 0;
   }
@@ -206,6 +223,14 @@
   @media (max-width: 480px) {
     .header { flex-wrap: wrap; }
     .header h1 { font-size: calc(15px + var(--font-step)); }
+    .settings-menu {
+      order: 10; width: 100%; max-width: 100%;
+      justify-content: flex-end; flex-wrap: wrap;
+    }
+    .settings-menu.hidden {
+      width: 100%; max-height: 0; max-width: 100%;
+      transform: translateY(-4px);
+    }
     .display-controls { width: 100%; justify-content: flex-end; }
     .acc-answer { font-size: calc(14px + var(--font-step)); }
     .reflection-banner { flex-direction: column; text-align: center; }
@@ -221,14 +246,17 @@
     <h1 id="header-title">กิจกรรมสาขาวิชาโลหิตวิทยา</h1>
     <p id="header-sub">ข้อมูลสำหรับนักศึกษาแพทย์และแพทย์ elective</p>
   </div>
-  <div class="lang-toggle">
-    <button class="lang-btn active" id="btn-th" onclick="setLang('th')">TH</button>
-    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
-  </div>
-  <div class="display-controls" aria-label="Display settings">
-    <button class="control-btn" type="button" onclick="changeFontSize(-1)" aria-label="ลดขนาดตัวอักษร">A-</button>
-    <button class="control-btn" type="button" onclick="changeFontSize(1)" aria-label="เพิ่มขนาดตัวอักษร">A+</button>
-    <button class="control-btn" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="สลับโหมดมืด">🌙</button>
+  <button class="menu-toggle" id="menu-toggle" type="button" onclick="toggleSettingsMenu()" aria-label="ซ่อนหรือแสดงเมนู" aria-expanded="true">☰</button>
+  <div class="settings-menu" id="settings-menu">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-th" onclick="setLang('th')">TH</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+    </div>
+    <div class="display-controls" aria-label="Display settings">
+      <button class="control-btn" type="button" onclick="changeFontSize(-1)" aria-label="ลดขนาดตัวอักษร">A-</button>
+      <button class="control-btn" type="button" onclick="changeFontSize(1)" aria-label="เพิ่มขนาดตัวอักษร">A+</button>
+      <button class="control-btn" id="theme-btn" type="button" onclick="toggleTheme()" aria-label="สลับโหมดมืด">🌙</button>
+    </div>
   </div>
 </div>
 
@@ -319,11 +347,26 @@ function toggleTheme() {
   applyTheme(document.body.classList.contains('dark') ? 'light' : 'dark');
 }
 
+function applySettingsMenu(isHidden) {
+  const menu = document.getElementById('settings-menu');
+  const toggle = document.getElementById('menu-toggle');
+  menu.classList.toggle('hidden', isHidden);
+  toggle.setAttribute('aria-expanded', String(!isHidden));
+  toggle.title = isHidden ? 'แสดงเมนู' : 'ซ่อนเมนู';
+  localStorage.setItem('settingsMenuHidden', isHidden ? '1' : '0');
+}
+
+function toggleSettingsMenu() {
+  const menu = document.getElementById('settings-menu');
+  applySettingsMenu(!menu.classList.contains('hidden'));
+}
+
 function initDisplaySettings() {
   applyFontSize();
   const savedTheme = localStorage.getItem('theme');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+  applySettingsMenu(localStorage.getItem('settingsMenuHidden') === '1');
 }
 
 // ── Fetch data from API ──────────────────────────────
