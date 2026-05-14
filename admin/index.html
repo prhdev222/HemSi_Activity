@@ -307,12 +307,21 @@ input[type=text]:focus, textarea:focus { border-color: #1d6a45; }
           <textarea id="f-ans-en" rows="6" placeholder="Activity details…"></textarea>
         </div>
       </div>
-      <div class="toggle-row">
-        <label class="toggle">
-          <input type="checkbox" id="f-visible" checked />
-          <span class="toggle-slider"></span>
-        </label>
-        <span class="toggle-label">แสดงบนหน้าเว็บ (visible)</span>
+      <div style="display:flex;gap:20px;flex-wrap:wrap">
+        <div class="toggle-row">
+          <label class="toggle">
+            <input type="checkbox" id="f-visible-th" checked />
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">🇹🇭 แสดงในเวอร์ชันภาษาไทย</span>
+        </div>
+        <div class="toggle-row">
+          <label class="toggle">
+            <input type="checkbox" id="f-visible-en" checked />
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">🇬🇧 แสดงในเวอร์ชันภาษาอังกฤษ</span>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
@@ -404,15 +413,15 @@ function renderItems() {
         <div class="item-tag-th">${esc(item.tag_th)}</div>
         <div class="item-tag-en">${esc(item.tag_en)}</div>
       </div>
-      <div class="item-visible">
-        <span class="badge-visible ${item.visible ? 'badge-on' : 'badge-off'}">
-          ${item.visible ? 'แสดง' : 'ซ่อน'}
+      <div class="item-visible" style="display:flex;gap:4px;flex-shrink:0">
+        <span class="badge-visible ${item.visible_th ? 'badge-on' : 'badge-off'}" title="ภาษาไทย">
+          TH ${item.visible_th ? '✓' : '✗'}
+        </span>
+        <span class="badge-visible ${item.visible_en ? 'badge-on' : 'badge-off'}" title="English">
+          EN ${item.visible_en ? '✓' : '✗'}
         </span>
       </div>
       <div class="item-actions">
-        <button class="btn-sm btn-toggle ${item.visible ? 'active' : ''}" onclick="toggleVisible(${item.id}, ${item.visible})">
-          ${item.visible ? '👁 ซ่อน' : '👁 แสดง'}
-        </button>
         <button class="btn-sm btn-edit" onclick="openModal(${item.id})">✏️ แก้ไข</button>
         <button class="btn-sm btn-del" onclick="deleteItem(${item.id}, '${esc(item.tag_th)}')">🗑</button>
       </div>
@@ -435,12 +444,14 @@ function openModal(id = null) {
     document.getElementById('f-kw-en').value = item.keywords_en;
     document.getElementById('f-ans-th').value = item.answer_th;
     document.getElementById('f-ans-en').value = item.answer_en;
-    document.getElementById('f-visible').checked = !!item.visible;
+    document.getElementById('f-visible-th').checked = item.visible_th !== 0;
+    document.getElementById('f-visible-en').checked = item.visible_en !== 0;
   } else {
     ['f-tag-th','f-tag-en','f-kw-th','f-kw-en','f-ans-th','f-ans-en'].forEach(id => {
       document.getElementById(id).value = '';
     });
-    document.getElementById('f-visible').checked = true;
+    document.getElementById('f-visible-th').checked = true;
+    document.getElementById('f-visible-en').checked = true;
   }
 
   document.getElementById('modal').classList.add('open');
@@ -464,7 +475,8 @@ async function saveItem() {
     keywords_en: document.getElementById('f-kw-en').value.trim(),
     answer_th,
     answer_en: document.getElementById('f-ans-en').value.trim(),
-    visible: document.getElementById('f-visible').checked ? 1 : 0,
+    visible_th: document.getElementById('f-visible-th').checked ? 1 : 0,
+    visible_en: document.getElementById('f-visible-en').checked ? 1 : 0,
   };
 
   try {
@@ -494,20 +506,7 @@ async function saveItem() {
   }
 }
 
-async function toggleVisible(id, currentVisible) {
-  const item = items.find(i => i.id === id);
-  if (!item) return;
-  const body = { ...item, visible: currentVisible ? 0 : 1 };
-
-  const res = await fetch(`/api/admin/items/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN },
-    body: JSON.stringify(body)
-  });
-  if (res.status === 401) { doLogout(); return; }
-  toast(currentVisible ? 'ซ่อนรายการแล้ว' : 'แสดงรายการแล้ว');
-  loadItems();
-}
+// toggleVisible removed — use ✏️ Edit to change per-language visibility
 
 async function deleteItem(id, tagName) {
   if (!confirm(`ลบ "${tagName}" ออกจากระบบ?\nไม่สามารถกู้คืนได้`)) return;

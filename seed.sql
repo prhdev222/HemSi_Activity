@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS items (
   keywords_en TEXT NOT NULL DEFAULT '',
   answer_th   TEXT NOT NULL,
   answer_en   TEXT NOT NULL DEFAULT '',
-  visible     INTEGER NOT NULL DEFAULT 1  -- 1=show, 0=hide
+  visible_th  INTEGER NOT NULL DEFAULT 1,  -- 1=show in TH, 0=hide in TH
+  visible_en  INTEGER NOT NULL DEFAULT 1   -- 1=show in EN, 0=hide in EN
 );
 
 CREATE TABLE IF NOT EXISTS config (
@@ -22,10 +23,17 @@ CREATE TABLE IF NOT EXISTS config (
 );
 
 -- ================================================
--- Seed: items (from hardcoded DOC data)
+-- Migration helper (run if upgrading from old schema with `visible`)
+-- ALTER TABLE items ADD COLUMN visible_th INTEGER NOT NULL DEFAULT 1;
+-- ALTER TABLE items ADD COLUMN visible_en INTEGER NOT NULL DEFAULT 1;
+-- UPDATE items SET visible_th = visible, visible_en = visible;
 -- ================================================
 
-INSERT INTO items (sort_order, tag_th, tag_en, keywords_th, keywords_en, answer_th, answer_en, visible) VALUES
+-- ================================================
+-- Seed: items
+-- ================================================
+
+INSERT INTO items (sort_order, tag_th, tag_en, keywords_th, keywords_en, answer_th, answer_en, visible_th, visible_en) VALUES
 (1,
  'เตรียมก่อนมาดูงาน',
  'Before You Start',
@@ -41,7 +49,7 @@ INSERT INTO items (sort_order, tag_th, tag_en, keywords_th, keywords_en, answer_
 Check the ward round schedule and OPD schedule posted in the LINE group notes.
 
 Confirm the ward round time and meeting point with the chief resident of your assigned team.',
- 1),
+ 1, 1),
 
 (2,
  'ราวด์วอร์ด — ทีมและเวลา',
@@ -64,7 +72,7 @@ Both teams also provide consultations for hematologic problems in internal medic
 
 ▸ Morning round: 7:30 AM (time may vary — confirm with chief resident)
 ▸ Afternoon: Consult rounds, blood smear and bone marrow review with attending',
- 1),
+ 1, 1),
 
 (3,
  'แกรนด์ราวด์ — วันจันทร์ 13:00–15:00',
@@ -85,7 +93,7 @@ The resident presents 2 interesting hematology cases.
 ▸ Discussion is open — all participants may contribute voluntarily
 
 (Ask the resident for the venue on the day)',
- 1),
+ 1, 1),
 
 (4,
  'Hematology Conference — วันพฤหัสบดี 13:15–14:15',
@@ -108,7 +116,7 @@ Activities rotate weekly:
 3. Hematology Pathology Conference (HPC) — case presented alongside a pathologist, including histology review (rare or diagnostically challenging cases)
 4. Coagulation Round — cases on coagulation disorders, thrombosis, abnormal bleeding, or intriguing coagulation lab results
 5. Morbidity & Mortality Conference — chief resident presents deceased cases from the month to improve patient care',
- 1),
+ 1, 1),
 
 (5,
  'OPD — ตารางและระเบียบ',
@@ -131,7 +139,7 @@ Activities rotate weekly:
 
 1–2 weeks before your elective: please specify your learning objective/goal
 After finishing: please fill in the reflection/feedback via the Google Form provided',
- 1),
+ 1, 1),
 
 (6,
  'Lectures Online — SelecX',
@@ -166,7 +174,7 @@ Recommended topics:
 • A practical care in thalassemic patients
 • Approach to bleeding and thrombosis
 • Non-Hodgkin / Hodgkin lymphoma',
- 1),
+ 1, 0),  -- SelecX: TH only, hide from EN
 
 (7,
  'Lectures ในสาขา — ศุกร์ที่ 1 และ 3',
@@ -187,7 +195,7 @@ Recommended topics:
 ▸ Midday lectures:
   Every 1st and 3rd Friday of the month
   Ask the ward team for the venue or online link',
- 1),
+ 1, 1),
 
 (8,
  'เสร็จสิ้นการดูงาน',
@@ -206,7 +214,7 @@ Recommended topics:
 2. You may then leave the LINE group
 
 We wish you all the happiness and a wealth of hematology knowledge! 🩸',
- 1);
+ 1, 1);
 
 -- ================================================
 -- Seed: config

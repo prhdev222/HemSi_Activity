@@ -36,7 +36,7 @@ export async function onRequestGet({ request, env }) {
 
   const db = createTursoClient(env);
   const { rows } = await db.execute(
-    "SELECT id, sort_order, tag_th, tag_en, keywords_th, keywords_en, answer_th, answer_en, visible FROM items ORDER BY sort_order ASC"
+    "SELECT id, sort_order, tag_th, tag_en, keywords_th, keywords_en, answer_th, answer_en, visible_th, visible_en FROM items ORDER BY sort_order ASC"
   );
 
   const items = rows.map((r) => ({
@@ -44,7 +44,8 @@ export async function onRequestGet({ request, env }) {
     tag_th: r[2], tag_en: r[3],
     keywords_th: r[4], keywords_en: r[5],
     answer_th: r[6], answer_en: r[7],
-    visible: r[8],
+    visible_th: r[8] ?? 1,
+    visible_en: r[9] ?? 1,
   }));
 
   return new Response(JSON.stringify({ items }), { headers: CORS });
@@ -61,8 +62,8 @@ export async function onRequestPost({ request, env }) {
   const nextOrder = (maxRows[0][0] || 0) + 1;
 
   const { lastInsertRowid } = await db.execute({
-    sql: "INSERT INTO items (sort_order, tag_th, tag_en, keywords_th, keywords_en, answer_th, answer_en, visible) VALUES (?,?,?,?,?,?,?,?)",
-    args: [nextOrder, body.tag_th, body.tag_en, body.keywords_th, body.keywords_en, body.answer_th, body.answer_en, body.visible ?? 1],
+    sql: "INSERT INTO items (sort_order, tag_th, tag_en, keywords_th, keywords_en, answer_th, answer_en, visible_th, visible_en) VALUES (?,?,?,?,?,?,?,?,?)",
+    args: [nextOrder, body.tag_th, body.tag_en, body.keywords_th, body.keywords_en, body.answer_th, body.answer_en, body.visible_th ?? 1, body.visible_en ?? 1],
   });
 
   return new Response(JSON.stringify({ id: Number(lastInsertRowid) }), { headers: CORS });

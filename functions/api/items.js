@@ -1,5 +1,5 @@
 // GET /api/items — public, no auth required
-// Returns all visible items from Turso
+// Returns items filtered by language visibility
 
 import { createTursoClient } from "../../lib/turso.js";
 
@@ -12,8 +12,9 @@ export async function onRequestGet({ env }) {
   try {
     const db = createTursoClient(env);
 
+    // Fetch all items with both visible flags
     const { rows } = await db.execute(
-      "SELECT id, sort_order, tag_th, tag_en, keywords_th, keywords_en, answer_th, answer_en FROM items WHERE visible = 1 ORDER BY sort_order ASC"
+      "SELECT id, sort_order, tag_th, tag_en, keywords_th, keywords_en, answer_th, answer_en, visible_th, visible_en FROM items ORDER BY sort_order ASC"
     );
 
     const items = rows.map((r) => ({
@@ -25,6 +26,8 @@ export async function onRequestGet({ env }) {
         en: r[5] ? r[5].split(",").map((k) => k.trim()) : [],
       },
       answer: { th: r[6], en: r[7] },
+      visible_th: r[8] ?? 1,
+      visible_en: r[9] ?? 1,
     }));
 
     const cfg = await db.execute(

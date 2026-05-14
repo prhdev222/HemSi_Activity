@@ -39,8 +39,8 @@ export async function onRequestPut({ request, env, params }) {
   const db = createTursoClient(env);
 
   await db.execute({
-    sql: "UPDATE items SET tag_th=?, tag_en=?, keywords_th=?, keywords_en=?, answer_th=?, answer_en=?, visible=?, sort_order=? WHERE id=?",
-    args: [body.tag_th, body.tag_en, body.keywords_th, body.keywords_en, body.answer_th, body.answer_en, body.visible, body.sort_order, id],
+    sql: "UPDATE items SET tag_th=?, tag_en=?, keywords_th=?, keywords_en=?, answer_th=?, answer_en=?, visible_th=?, visible_en=?, sort_order=? WHERE id=?",
+    args: [body.tag_th, body.tag_en, body.keywords_th, body.keywords_en, body.answer_th, body.answer_en, body.visible_th, body.visible_en, body.sort_order, id],
   });
 
   return new Response(JSON.stringify({ ok: true }), { headers: CORS });

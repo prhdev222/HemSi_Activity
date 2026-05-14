@@ -376,19 +376,23 @@ async function loadData() {
     const res = await fetch('/api/items');
     const data = await res.json();
 
-    // Map API response to DOC format
-    DOC.th = data.items.map(item => ({
-      id: item.id,
-      tag: item.tag.th,
-      keywords: item.keywords.th,
-      answer: item.answer.th,
-    }));
-    DOC.en = data.items.map(item => ({
-      id: item.id,
-      tag: item.tag.en || item.tag.th,
-      keywords: item.keywords.en.length ? item.keywords.en : item.keywords.th,
-      answer: item.answer.en || item.answer.th,
-    }));
+    // Map API response to DOC format — filter by per-language visibility
+    DOC.th = data.items
+      .filter(item => item.visible_th !== 0)
+      .map(item => ({
+        id: item.id,
+        tag: item.tag.th,
+        keywords: item.keywords.th,
+        answer: item.answer.th,
+      }));
+    DOC.en = data.items
+      .filter(item => item.visible_en !== 0)
+      .map(item => ({
+        id: item.id,
+        tag: item.tag.en || item.tag.th,
+        keywords: item.keywords.en.length ? item.keywords.en : item.keywords.th,
+        answer: item.answer.en || item.answer.th,
+      }));
 
     CONFIG = data.config || {};
 
