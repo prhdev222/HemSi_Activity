@@ -220,6 +220,34 @@
   }
   .reflection-banner a.rb-btn:hover { background: var(--accent-dark); }
 
+  .site-footer {
+    margin-top: 2rem;
+    padding: 1.25rem 1rem 2.5rem;
+    text-align: center;
+    color: var(--text-muted);
+  }
+  .site-footer-inner {
+    max-width: 700px;
+    margin: 0 auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .site-footer p {
+    font-size: calc(13px + var(--font-step));
+    line-height: 1.7;
+  }
+  .site-footer p + p {
+    margin-top: 0.25rem;
+  }
+  .site-footer a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .site-footer a:hover {
+    text-decoration: underline;
+  }
+
   @media (max-width: 480px) {
     .header { flex-wrap: wrap; }
     .header h1 { font-size: calc(15px + var(--font-step)); }
@@ -288,6 +316,13 @@
     <a class="rb-btn" id="rb-btn" href="#" target="_blank">กรอกแบบประเมิน →</a>
   </div>
 </div>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <p>Built with ❤️ for Siriraj Hematology</p>
+    <p>© 2026 Directed by <a href="mailto:uradev222@gmail.com">Uradev</a></p>
+  </div>
+</footer>
 
 <script>
 let currentLang = 'th';
