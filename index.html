@@ -433,10 +433,10 @@ async function loadData() {
 
     // Apply config to UI
     if (CONFIG.notice) {
-      document.getElementById('notice-banner').innerHTML = CONFIG.notice[currentLang] || CONFIG.notice.th;
+      document.getElementById('notice-banner').innerHTML = safeNoticeHtml(CONFIG.notice[currentLang] || CONFIG.notice.th);
     }
     if (CONFIG.feedback_url_th) {
-      document.getElementById('rb-btn').href = CONFIG.feedback_url_th[currentLang] || CONFIG.feedback_url_th.th;
+      document.getElementById('rb-btn').href = safeHref(CONFIG.feedback_url_th[currentLang] || CONFIG.feedback_url_th.th);
     }
 
     renderAccordion(DOC[currentLang], '');
@@ -450,6 +450,23 @@ async function loadData() {
 
 function escapeHtml(str) {
   return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Allow only <strong>, </strong>, <br> from DB-sourced HTML (notice banner)
+function safeNoticeHtml(html) {
+  return String(html || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '\x00')
+    .replace(/\x00strong>/gi, '<strong>')
+    .replace(/\x00\/strong>/gi, '</strong>')
+    .replace(/\x00br\s*\/?>/gi, '<br>')
+    .replace(/\x00/g, '&lt;');
+}
+
+// Only allow https: URLs for external links from DB config
+function safeHref(url) {
+  try { const u = new URL(url); return u.protocol === 'https:' ? url : '#'; }
+  catch { return '#'; }
 }
 
 function highlight(text, query) {
@@ -549,10 +566,10 @@ function setLang(lang) {
   document.getElementById('rb-btn').textContent = t.rbBtn;
 
   if (CONFIG.notice) {
-    document.getElementById('notice-banner').innerHTML = CONFIG.notice[lang] || CONFIG.notice.th;
+    document.getElementById('notice-banner').innerHTML = safeNoticeHtml(CONFIG.notice[lang] || CONFIG.notice.th);
   }
   if (CONFIG.feedback_url_th) {
-    document.getElementById('rb-btn').href = CONFIG.feedback_url_th[lang] || CONFIG.feedback_url_th.th;
+    document.getElementById('rb-btn').href = safeHref(CONFIG.feedback_url_th[lang] || CONFIG.feedback_url_th.th);
   }
 
   document.getElementById('q').value = '';

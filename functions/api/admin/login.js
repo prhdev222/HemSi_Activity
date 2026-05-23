@@ -19,7 +19,8 @@ export async function onRequestPost({ request, env }) {
     }
 
     const ts = Date.now().toString();
-    const secret = env.ADMIN_SECRET || "elective-secret-change-me";
+    const secret = env.ADMIN_SECRET;
+    if (!secret) throw new Error("ADMIN_SECRET not configured");
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
       "raw",
@@ -33,7 +34,8 @@ export async function onRequestPost({ request, env }) {
 
     return new Response(JSON.stringify({ token }), { headers });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error("login error:", err);
+    return new Response(JSON.stringify({ error: "เกิดข้อผิดพลาด กรุณาลองใหม่" }), {
       status: 500,
       headers,
     });

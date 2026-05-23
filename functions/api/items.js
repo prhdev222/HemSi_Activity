@@ -40,7 +40,8 @@ export async function onRequestGet({ env }) {
 
     return new Response(JSON.stringify({ items, config }), { headers });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error("items fetch error:", err);
+    return new Response(JSON.stringify({ error: "ไม่สามารถโหลดข้อมูลได้" }), {
       status: 500,
       headers,
     });
